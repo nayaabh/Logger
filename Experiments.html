@@ -1,0 +1,260 @@
+<html>
+<head>
+<script src="js/jquery-3.1.1.min.js" type="application/javascript"></script>
+<script src="js/experiment.js" type="text/javascript" ></script>
+<script src="js/lodash.js" type="text/javascript" ></script>
+<link rel="stylesheet" href="css/bootstrap.css" >
+<style>
+.log-element{
+position: relative;
+}
+	.log-block{
+		display: block;
+		font-family: "Consolas", monospace;
+		font-size: 12px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		margin-left: 15px;
+	}
+
+	.log-block span {
+	height: 20px;
+	display: inline-block;
+	vertical-align: middle;
+	line-height: 20px;
+}
+span.folder{
+	height:5px;
+	width:5px;
+	display: inline-block;
+	position: absolute;
+	left:5px;
+	background: '#F00';
+}
+</style>
+</head>
+<body>
+<div id="playground" style="display: none;">2017-2-25,22:11:234 DEBUG  [SomeClassName - ThreadId12213ss] Log message go here blah blah blah..
+2017-2-25,22:11:234 INFO	[SomeClassName - ThreadId12213ss] Log message go here blah blah blah..
+2017-2-25,22:11:234 WARN	[SomeClassName - ThreadId12213ss] Log message go here blah blah blah..
+2017-2-25,22:11:234 ERROR	[SomeClassName - ThreadId12213ss] Log message go here blah blah..
+com.sun.java.lang.SomeSortaError - Some error occured
+	at com.java.lang.Someclassname.errorFunctionName:123 [package-name-version.jar]
+	at com.java.lang.Someclassname.functionOtherName:12 [package-name-version.jar]
+	at com.java.lang.Someclassname.newFunctionName:87 [package-name-version.jar]
+	at com.java.lang.Someclassname.theFunctionName:232 [package-name-version.jar]
+	at com.java.lang.Someclassname.whatFunctionName:90 [package-name-version.jar]
+2017-2-25,22:11:234 TRACE	[SomeClassName - ThreadId12213ss] Log message go here blah blah blah..
+2017-2-25,22:11:234 TRACE	[SomeClassName - ThreadId12213ss] Log message go here blah blah blah..
+2017-2-25,22:11:234 INFO	[SomeClassName - ThreadId12213ss] Log message go here blah blah blah..
+2017-2-25,22:11:234 INFO	[SomeClassName - ThreadId12213ss] Log message go here blah blah blah..
+2017-2-25,22:11:234 DEBUG	[SomeClassName - ThreadId12213ss] Log message go here blah blah blah..
+2017-2-25,22:11:234 DEBUG	[SomeClassName - ThreadId12213ss] Log message go here blah blah blah..
+2017-2-25,22:11:234 DEBUG	[SomeClassName - ThreadId12213ss] Log message go here blah blah blah..
+2017-2-25,22:11:234 ERROR	[SomeClassName - ThreadId12213ss] ERROR Name Log message go here blah blah..
+com.sun.java.lang.SomeSortaError - Some error occured
+	at com.java.lang.Someclassname.errorFunctionName:123 [package-name-version.jar]
+	at com.java.lang.Someclassname.functionOtherName:12 [package-name-version.jar]
+	at com.java.lang.Someclassname.newFunctionName:87 [package-name-version.jar]
+	at com.java.lang.Someclassname.theFunctionName:232 [package-name-version.jar]
+	at com.java.lang.Someclassname.whatFunctionName:90 [package-name-version.jar]</div>
+<button class="btn btn-success" onclick="formatLog()">Format</button>
+<div id="outputDiv">
+</div>
+<script type="text/javascript" lang="javascript">
+var ruleList = [
+	{
+		id:1,
+		name: 'DEBUG',
+		pattern: '.*DEBUG.*',
+		ignoreCaseFlag: true,
+		globalFlag: false,
+		multiLine: true,
+		formatWholeLine: true,
+		backgroundColor: '#59c8ff',
+		foregroundColor: '#000',
+		foldable: true,
+		filter:false,
+		enabled: true
+	},
+	{
+		id:2,
+		name: "INFO",
+		pattern: '.*INFO.*',
+		ignoreCaseFlag: true,
+		globalFlag: false,
+		multiLine: true,
+		formatWholeLine: true,
+		backgroundColor: '#0F0',
+		foregroundColor: '#000',
+		foldable: false,
+		filter:false,
+		enabled: true
+	},
+	{
+		id:3,
+		name: "WARN",
+		pattern: '.*WARN.*',
+		ignoreCaseFlag: true,
+		globalFlag: false,
+		multiLine: true,
+		formatWholeLine: true,
+		backgroundColor: '#ffa42f',
+		foregroundColor: '#000',
+		foldable: false,
+		filter:false,
+		enabled: true
+	},
+	{
+		id:4,
+		name: "ERROR",
+		pattern: '.*ERROR.*',
+		ignoreCaseFlag: false,
+		globalFlag: false,
+		multiLine: true,
+		formatWholeLine: true,
+		backgroundColor: '#ff7c7c',
+		foregroundColor: '#000',
+		foldable: false,
+		filter:false,
+		enabled: true
+	},
+	{
+		id:5,
+		name: "FATAL",
+		pattern: '.*FATAL.*',
+		ignoreCaseFlag: true,
+		globalFlag: false,
+		multiLine: true,
+		formatWholeLine: true,
+		backgroundColor: '#F00',
+		foregroundColor: '#000',
+		foldable: false,
+		filter:false,
+		enabled: true
+	},
+	{
+		id:6,
+		name: "TRACE",
+		pattern: '.*TRACE',
+		ignoreCaseFlag: true,
+		globalFlag: false,
+		multiLine: true,
+		formatWholeLine: false,
+		backgroundColor: '#FFF',
+		foregroundColor: '#59c8ff',
+		foldable: false,
+		filter:false,
+		enabled: true
+	},
+	{
+		id:7,
+		name: "Stack Trace",
+		pattern: '^\tat',
+		ignoreCaseFlag: true,
+		globalFlag: false,
+		multiLine: true,
+		formatWholeLine: false,
+		backgroundColor: '#FFF',
+		foregroundColor: '#59c8ff',
+		foldable: false,
+		filter:false,
+		enabled: true
+	}
+]
+function formatLog(){
+  var rawlogs = $('#playground')[0].innerHTML;
+  var rawLogsArray = rawlogs.split('\n');
+  console.debug(rawLogsArray);
+  var RuleBook = _.map(ruleList, function(value){
+	return new FormatterRule(value);
+  })
+  for(var i = 0; i<rawLogsArray.length ;i++){
+	 var log = new Log(rawLogsArray[i], i);
+	 var filter = false;
+	_.forEach(RuleBook, function(rule, index){
+		var formattedLog = log.applyRule(rule);
+		if(formattedLog && !filter){
+			log = formattedLog;
+		}else{
+			filter = true;
+		}
+	} )
+	var logElement =  $(`#log_${i}`);
+	if(_.isEmpty(logElement)){
+		$('#outputDiv')[0].innerHTML += log.render();
+	}else{
+		log.reRender()
+	}
+	
+  }
+}
+function FormatterRule(rule){
+	if(_.isEmpty(rule) || !this) return;
+	this.id = rule.id;
+	this.name = rule.name;
+	this.formatWholeLine = rule.formatWholeLine;
+	this.filter = rule.filter;
+	this.regex = function() {
+		//var pattern = rule.formatWholeLine ? `.*${rule.pattern}.*` : rule.pattern;
+		var pattern = rule.pattern;
+		var i = rule.ignoreCaseFlag ? 'i' : '';
+		var g = rule.globalFlag ? 'g' : '';
+		var m = rule.multiLine ? 'm' : '';
+		return new RegExp(`${pattern}`,`${i}${g}${m}`);
+	}()
+	this.style = `color:${rule.foregroundColor}; background:${rule.backgroundColor}`
+	
+}
+function Log(str, index){
+	this.id = index;
+	this.logText = str;
+	var tabRegex = new RegExp(/\t/,'g');
+	this.innerHTML = this.logText.replace(tabRegex,'&nbsp;&nbsp;&nbsp;&nbsp;');
+	this.rulesApplied = [];
+
+	this.applyRule = function(rule) {
+		var matchedString = rule.regex.exec(this.logText);
+		if(matchedString){
+			if(rule.filter){
+				this.setFilter(rule.filter)
+				return false;
+			}
+			if(rule.formatWholeLine) {
+				this.style = rule.style;
+			}if(!this.foldable && rule.foldable){
+				this.foldable = rule.foldable;
+			}
+			this.innerHTML = this.logText.replace(rule.regex, `<span class="log_${index}_${rule.id}" style="${rule.style}">${matchedString}</span>`)
+			this.innerHTML = this.innerHTML.replace(tabRegex,'&nbsp;&nbsp;&nbsp;&nbsp;');
+			this.rulesApplied.push(rule);
+		}
+		return this;
+	}
+	this.unApplyRule = function(rule) {
+		return this;
+	}
+	this.render = function(){
+		return `<span id="log_${this.id}" class="log-element">${this.finalHTML()}</span>`
+	}
+	this.finalHTML = function(){
+		return `<span class='folder open'></span><span class="log-block" style="${this.style}">${this.innerHTML}</span>`
+	}
+	this.reRender = function(){
+		var logElement =  $(`#log_${this.id}`);
+		var previousStyle = logElement[0].children[0].attributes.style.value;
+		var newStyle = this.style
+		if((previousStyle == undefined && newStyle == undefined) || (previousStyle == newStyle)) return;
+		logElement[0].innerHTML= this.finalHTML();
+	}
+	this.setFilter = function(filter){
+		if(filter){
+			this.style =`display:none;`;
+		}else {
+			this.style = '';
+		}
+	}
+}
+</script>
+</body>
+</html>
